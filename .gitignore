@@ -10,6 +10,11 @@ auth_state_*.json
 # 日志
 logs/
 
+# 设计文档与临时文件
+docs/
+*.docx
+.claude/
+
 # Python 缓存
 __pycache__/
 *.pyc
