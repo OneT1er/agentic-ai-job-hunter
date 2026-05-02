@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 from langchain_openai import ChatOpenAI
 
@@ -10,17 +10,17 @@ from src.state import JobExtraction, JobSearchState
 logger = get_logger(__name__)
 
 
-def _create_evaluator_llm() -> ChatOpenAI:
+def _create_evaluator_llm():
     llm = ChatOpenAI(
         model=settings.model_name,
-        api_key=settings.openai_api_key,
+        api_key=settings.openai_api_key,  # type: ignore[arg-type]
         base_url=settings.openai_base_url,
         temperature=0.2,
     )
     return llm.with_structured_output(JobExtraction)
 
 
-def evaluator_node(state: JobSearchState) -> Dict[str, Any]:
+def evaluator_node(state: JobSearchState) -> dict[str, Any]:
     valid_jobs = state.get("current_jobs", [])
     visited_urls = state.get("visited_urls", set())
     raw_data = state.get("raw_html_data", [])
@@ -48,7 +48,7 @@ def evaluator_node(state: JobSearchState) -> Dict[str, Any]:
 
         try:
             result = llm.invoke(prompt)
-            if result.is_target_job:
+            if result.is_target_job:  # type: ignore[attr-defined, union-attr]
                 job_info = result.model_dump()
                 job_info.pop("is_target_job", None)
                 job_info.update({

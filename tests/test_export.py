@@ -19,7 +19,8 @@ class TestExportToCsv:
                 "source": "牛客网",
             }
         ]
-        with tempfile.NamedTemporaryFile(suffix=".csv", delete=False, mode="w", encoding="utf-8-sig") as f:
+        tmp = tempfile.NamedTemporaryFile(suffix=".csv", delete=False, mode="w", encoding="utf-8-sig")
+        with tmp as f:
             f.close()
             export_to_csv(jobs, f.name)
             content = Path(f.name).read_text(encoding="utf-8-sig")

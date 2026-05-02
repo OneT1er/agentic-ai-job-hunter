@@ -1,13 +1,13 @@
 import csv
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 from src.logger import get_logger
 
 logger = get_logger(__name__)
 
 
-def export_to_csv(jobs: List[Dict[str, Any]], filepath: str = "ai_jobs_result.csv") -> None:
+def export_to_csv(jobs: list[dict[str, Any]], filepath: str = "ai_jobs_result.csv") -> None:
     if not jobs:
         logger.warning("未收集到有效数据，取消导出。")
         return

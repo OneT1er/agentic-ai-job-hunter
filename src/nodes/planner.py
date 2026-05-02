@@ -1,5 +1,5 @@
 import random
-from typing import Any, Dict
+from typing import Any
 
 from langchain_openai import ChatOpenAI
 
@@ -19,13 +19,13 @@ logger = get_logger(__name__)
 def _create_llm() -> ChatOpenAI:
     return ChatOpenAI(
         model=settings.model_name,
-        api_key=settings.openai_api_key,
+        api_key=settings.openai_api_key,  # type: ignore[arg-type]
         base_url=settings.openai_base_url,
         temperature=0.2,
     )
 
 
-def planner_node(state: JobSearchState) -> Dict[str, Any]:
+def planner_node(state: JobSearchState) -> dict[str, Any]:
     logger.info(
         "第 %d 轮迭代 | 已收集: %d/%d",
         state["iteration_count"],
@@ -43,7 +43,7 @@ def planner_node(state: JobSearchState) -> Dict[str, Any]:
         llm = _create_llm()
         try:
             response = llm.invoke(PLANNER_SYSTEM_PROMPT)
-            new_queries = safe_json_array_from_text(response.content)
+            new_queries = safe_json_array_from_text(str(response.content))
 
             valid_new: list[str] = []
             for q in new_queries:

@@ -1,10 +1,9 @@
 import re
-from typing import List
 
 import json5
 
 
-def safe_json_array_from_text(text: str) -> List[str]:
+def safe_json_array_from_text(text: str) -> list[str]:
     """从模型输出中健壮提取 JSON 数组，优先使用 json5 解析。"""
     clean = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
 

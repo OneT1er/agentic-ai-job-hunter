@@ -1,4 +1,5 @@
 import pytest
+
 from src.utils import (
     contains_banned_terms,
     is_campus_query,

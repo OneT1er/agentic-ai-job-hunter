@@ -1,6 +1,6 @@
 import os
 import urllib.parse
-from typing import Any, Dict, List
+from typing import Any
 
 from playwright.sync_api import Page, sync_playwright
 from playwright_stealth import Stealth
@@ -12,7 +12,7 @@ from src.utils import normalize_url
 
 logger = get_logger(__name__)
 
-PLATFORM_CONFIG: Dict[str, Dict[str, Any]] = {
+PLATFORM_CONFIG: dict[str, dict[str, Any]] = {
     "shixiseng": {
         "name": "实习僧",
         "url_template": "https://www.shixiseng.com/interns?keyword={query}",
@@ -42,16 +42,16 @@ def _scroll_to_load(page: Page) -> None:
         page.wait_for_timeout(500)
 
 
-def _extract_cards(page: Page, platform: str, per_page_limit: int) -> List[Dict[str, Any]]:
+def _extract_cards(page: Page, platform: str, per_page_limit: int) -> list[dict[str, Any]]:
     config = PLATFORM_CONFIG[platform]
-    page_data: List[Dict[str, Any]] = []
+    page_data: list[dict[str, Any]] = []
     cards = page.locator(config["card_selector"]).all()
     logger.info("当前页捕获 %d 个卡片", len(cards))
     for card in cards[:per_page_limit]:
         try:
             raw_text = card.inner_text(timeout=1500).strip()
             href = card.locator("a").first.get_attribute("href")
-            full_url = normalize_url(href, platform)
+            full_url = normalize_url(href or "", platform)
             if raw_text and full_url:
                 page_data.append({
                     "url": full_url,
@@ -103,8 +103,9 @@ def _try_url_pagination(page: Page, page_idx: int) -> bool:
     return True
 
 
-def scraper_node(state: JobSearchState) -> Dict[str, Any]:
-    current_query = state["current_queries"][0] if state["current_queries"] else "AI Engineer 校招 2026届"
+def scraper_node(state: JobSearchState) -> dict[str, Any]:
+    default_query = "AI Engineer 校招 2026届"
+    current_query = state["current_queries"][0] if state["current_queries"] else default_query
     encoded_query = urllib.parse.quote(current_query)
     raw_platform = state.get("current_platform", "nowcoder")
 
@@ -115,9 +116,12 @@ def scraper_node(state: JobSearchState) -> Dict[str, Any]:
     config = PLATFORM_CONFIG[current_platform]
     target_url = config["url_template"].format(query=encoded_query)
 
-    scraped_data: List[Dict[str, Any]] = []
+    scraped_data: list[dict[str, Any]] = []
 
-    logger.info("正在潜入: %s | 关键词: %s | 最多翻页: %d", config["name"], current_query, max_pages)
+    logger.info(
+        "正在潜入: %s | 关键词: %s | 最多翻页: %d",
+        config["name"], current_query, max_pages,
+    )
 
     with sync_playwright() as p:
         browser = p.chromium.launch(

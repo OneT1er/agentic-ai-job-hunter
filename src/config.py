@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     )
 
     # LLM 配置
-    openai_api_key: str
+    openai_api_key: str = ""  # 从 .env 读取，此处仅为类型检查默认值
     openai_base_url: str = "https://api.openai.com/v1"
     model_name: str = "qwen/qwen3.5-9b"
 

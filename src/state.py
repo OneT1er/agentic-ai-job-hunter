@@ -1,4 +1,3 @@
-from typing import List, Set
 
 from pydantic import BaseModel, Field
 from typing_extensions import TypedDict
@@ -6,11 +5,11 @@ from typing_extensions import TypedDict
 
 class JobSearchState(TypedDict):
     target_count: int
-    current_jobs: List[dict]
-    visited_urls: Set[str]
-    current_queries: List[str]
+    current_jobs: list[dict]
+    visited_urls: set[str]
+    current_queries: list[str]
     iteration_count: int
-    raw_html_data: List[dict]
+    raw_html_data: list[dict]
     current_platform: str
 
 
@@ -22,7 +21,7 @@ class JobExtraction(BaseModel):
     company: str = Field(description="公司名称", default="")
     location: str = Field(description="工作地点", default="未知")
     salary: str = Field(description="薪资范围", default="面议")
-    tech_tags: List[str] = Field(
+    tech_tags: list[str] = Field(
         description="技术栈关键词，如 PyTorch, LLM 等", default_factory=list
     )
     requirements: str = Field(
