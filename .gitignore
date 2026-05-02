@@ -1,0 +1,32 @@
+# 环境变量
+.env
+
+# 输出文件
+*.csv
+
+# 登录凭证
+auth_state_*.json
+
+# 日志
+logs/
+
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+
+# 工具缓存
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# 分发
+dist/
+*.egg-info/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
