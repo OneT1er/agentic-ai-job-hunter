@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 校招岗位看板</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --border: #334155;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --green: #4ade80;
+    --purple: #a78bfa;
+    --orange: #fb923c;
+    --pink: #f472b6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1a1a2e 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 24px 32px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(12px);
+  }
+  .header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 4px;
+  }
+  .header .subtitle {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* Stats */
+  .stats {
+    display: flex;
+    gap: 16px;
+    padding: 24px 32px;
+    flex-wrap: wrap;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 24px;
+    min-width: 140px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  }
+  .stat-card .label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .stat-card .value { font-size: 28px; font-weight: 700; }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex;
+    gap: 12px;
+    padding: 0 32px 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .toolbar input {
+    flex: 1;
+    min-width: 200px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .toolbar input:focus { border-color: var(--accent); }
+  .toolbar select {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+  }
+  .toolbar button {
+    background: var(--accent);
+    color: #0f172a;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .toolbar button:hover { opacity: 0.85; }
+
+  /* Tags */
+  .tags-row {
+    display: flex;
+    gap: 8px;
+    padding: 0 32px 16px;
+    flex-wrap: wrap;
+  }
+  .tag-chip {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tag-chip:hover, .tag-chip.active {
+    background: rgba(56,189,248,0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Job Grid */
+  .job-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 16px;
+    padding: 0 32px 40px;
+  }
+  .job-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 24px;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .job-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+    border-color: var(--accent);
+  }
+  .job-card .title {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .job-card .company-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .company-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .company-name { font-weight: 600; font-size: 15px; }
+  .card-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 13px;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .card-meta span { display: flex; align-items: center; gap: 4px; }
+  .card-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .card-tag {
+    background: rgba(56,189,248,0.12);
+    color: var(--accent);
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: 'SF Mono', 'Cascadia Code', monospace;
+  }
+  .card-requirements {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-source {
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card-source .source-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+  }
+  .badge-nowcoder { background: rgba(167,139,250,0.15); color: var(--purple); }
+  .badge-shixiseng { background: rgba(244,114,182,0.15); color: var(--pink); }
+
+  /* Empty */
+  .empty {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--muted);
+  }
+  .empty .icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
+  .empty h3 { font-size: 18px; margin-bottom: 8px; }
+  .empty p { font-size: 14px; }
+
+  /* Cursor */
+  .cursor-pointer { cursor: pointer; }
+
+  @media (max-width: 600px) {
+    .job-grid { grid-template-columns: 1fr; }
+    .header, .stats, .toolbar, .job-grid, .tags-row { padding-left: 16px; padding-right: 16px; }
+    .stats { gap: 8px; }
+    .stat-card { min-width: 100px; padding: 12px 16px; }
+    .stat-card .value { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>AI 校园招聘岗位看板</h1>
+  <div class="subtitle">Agentic AI Job Hunter — 自动搜集 · 智能筛选</div>
+</div>
+
+<div class="stats" id="stats"></div>
+
+<div class="toolbar">
+  <input type="text" id="search" placeholder="搜索岗位 / 公司 / 技术栈 ..." oninput="render()">
+  <select id="filter-location" onchange="render()">
+    <option value="">所有城市</option>
+  </select>
+  <select id="filter-source" onchange="render()">
+    <option value="">所有平台</option>
+  </select>
+  <button onclick="render()">搜索</button>
+</div>
+
+<div class="tags-row" id="techTags"></div>
+
+<div class="job-grid" id="jobGrid">
+  <div class="empty">
+    <div class="icon">📋</div>
+    <h3>暂无数据</h3>
+    <p>运行 <code>python main.py</code> 生成 <code>ai_jobs_result.csv</code> 后刷新此页面</p>
+  </div>
+</div>
+
+<script>
+const PALETTE = ['#f472b6','#fb923c','#4ade80','#38bdf8','#a78bfa','#f87171','#34d399','#fbbf24'];
+
+let allJobs = [];
+let allTechTags = new Set();
+
+function avatarColor(name) {
+  let hash = 0;
+  for (let i = 0; i < (name || '').length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return PALETTE[Math.abs(hash) % PALETTE.length];
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return [];
+  const headers = parseLine(lines[0]);
+  return lines.slice(1).map(line => {
+    const vals = parseLine(line);
+    const obj = {};
+    headers.forEach((h, i) => obj[h.trim()] = (vals[i] || '').trim());
+    return obj;
+  });
+}
+
+function parseLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (inQuotes) {
+      if (c === '"') { inQuotes = false; continue; }
+      current += c;
+    } else {
+      if (c === '"') { inQuotes = true; continue; }
+      if (c === ',') { result.push(current); current = ''; continue; }
+      current += c;
+    }
+  }
+  result.push(current);
+  return result;
+}
+
+function loadCSV() {
+  fetch('ai_jobs_result.csv')
+    .then(r => { if (!r.ok) throw new Error('CSV not found'); return r.text(); })
+    .then(text => {
+      allJobs = parseCSV(text);
+      allJobs.forEach(j => {
+        if (j.tech_tags) {
+          j.tech_tags.split(',').map(t => t.trim()).filter(Boolean).forEach(t => allTechTags.add(t));
+        }
+      });
+      updateFilters();
+      render();
+    })
+    .catch(() => {
+      document.getElementById('jobGrid').innerHTML = `<div class="empty">
+        <div class="icon">📄</div>
+        <h3>未找到 ai_jobs_result.csv</h3>
+        <p>请先运行 <code>python main.py</code>，将生成的 CSV 文件放在本页面同级目录</p>
+      </div>`;
+    });
+}
+
+function updateFilters() {
+  const locs = new Set(allJobs.map(j => j.location).filter(Boolean));
+  const sel = document.getElementById('filter-location');
+  sel.innerHTML = '<option value="">所有城市</option>';
+  [...locs].sort().forEach(l => { sel.innerHTML += `<option value="${l}">${l}</option>`; });
+
+  const sources = new Set(allJobs.map(j => j.source).filter(Boolean));
+  const srcSel = document.getElementById('filter-source');
+  srcSel.innerHTML = '<option value="">所有平台</option>';
+  [...sources].sort().forEach(s => { srcSel.innerHTML += `<option value="${s}">${s}</option>`; });
+
+  const tagsDiv = document.getElementById('techTags');
+  tagsDiv.innerHTML = [...allTechTags].sort().slice(0, 20).map(t =>
+    `<span class="tag-chip" onclick="toggleTag('${t}')">${t}</span>`
+  ).join('');
+}
+
+function toggleTag(tag) {
+  const search = document.getElementById('search');
+  search.value = search.value === tag ? '' : tag;
+  render();
+}
+
+function render() {
+  const query = document.getElementById('search').value.toLowerCase();
+  const loc = document.getElementById('filter-location').value;
+  const src = document.getElementById('filter-source').value;
+
+  let filtered = allJobs;
+  if (query) {
+    filtered = filtered.filter(j =>
+      (j.title || '').toLowerCase().includes(query) ||
+      (j.company || '').toLowerCase().includes(query) ||
+      (j.tech_tags || '').toLowerCase().includes(query) ||
+      (j.requirements || '').toLowerCase().includes(query)
+    );
+  }
+  if (loc) filtered = filtered.filter(j => j.location === loc);
+  if (src) filtered = filtered.filter(j => j.source === src);
+
+  // Stats
+  const companies = new Set(filtered.map(j => j.company).filter(Boolean));
+  const cities = new Set(filtered.map(j => j.location).filter(Boolean));
+  const sources = new Set(filtered.map(j => j.source).filter(Boolean));
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-card"><div class="label">岗位总数</div><div class="value" style="color:var(--accent)">${filtered.length}</div></div>
+    <div class="stat-card"><div class="label">覆盖公司</div><div class="value" style="color:var(--purple)">${companies.size}</div></div>
+    <div class="stat-card"><div class="label">覆盖城市</div><div class="value" style="color:var(--green)">${cities.size}</div></div>
+    <div class="stat-card"><div class="label">数据来源</div><div class="value" style="color:var(--orange)">${sources.size}</div></div>
+  `;
+
+  // Grid
+  const grid = document.getElementById('jobGrid');
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="empty">
+      <div class="icon">🔍</div><h3>无匹配结果</h3><p>尝试调整筛选条件</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(j => {
+    const color = avatarColor(j.company);
+    const initial = (j.company || '未')[0];
+    const tags = (j.tech_tags || '').split(',').map(t => t.trim()).filter(Boolean);
+    const sourceClass = j.source === '牛客网' ? 'badge-nowcoder' : 'badge-shixiseng';
+    return `<div class="job-card" onclick="window.open('${j.job_url || '#'}', '_blank')">
+      <div class="card-source">
+        <span class="source-badge ${sourceClass}">${j.source || '未知来源'}</span>
+        <span>${j.salary || '薪资面议'}</span>
+      </div>
+      <div class="title">${j.title || '未知岗位'}</div>
+      <div class="company-row">
+        <div class="company-avatar" style="background:${color}">${initial}</div>
+        <div class="company-name">${j.company || '未知公司'}</div>
+      </div>
+      <div class="card-meta">
+        <span>📍 ${j.location || '未知'}</span>
+      </div>
+      ${tags.length ? `<div class="card-tags">${tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div>` : ''}
+      ${j.requirements ? `<div class="card-requirements">${j.requirements}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+loadCSV();
+</script>
+
+</body>
+</html>
